@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/logo.png" alt="Unlimitade Storage" width="120" height="120" style="border-radius: 20px;" />
+  <img src="unlimitade-storage/public/logo.png" alt="Unlimitade Storage" width="120" height="120" style="border-radius: 20px;" />
 </p>
 
 <h1 align="center">Unlimitade Storage</h1>
