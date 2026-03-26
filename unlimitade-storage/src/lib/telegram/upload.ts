@@ -33,7 +33,7 @@ async function uploadViaBotApi(
   formData.append("caption", filename);
   formData.append(
     "document",
-    new Blob([buffer], { type: mimeType }),
+    new Blob([new Uint8Array(buffer)], { type: mimeType }),
     filename
   );
 

@@ -4,6 +4,38 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { uploadFile } from "@/lib/telegram/upload";
 import { generateThumbnail, getImageDimensions } from "@/lib/thumbnails";
 import { CHANNEL_ID } from "@/lib/telegram/bot";
+import { checkUploadRateLimit } from "@/lib/rate-limit";
+
+const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
+
+function sanitizeFileName(name: string): string {
+  // Strip path separators and traversal
+  let sanitized = name.replace(/[/\\]/g, "_");
+  // Remove null bytes and control characters
+  sanitized = sanitized.replace(/[\x00-\x1f\x7f]/g, "");
+  // Truncate to 255 characters preserving extension
+  if (sanitized.length > 255) {
+    const dotIndex = sanitized.lastIndexOf(".");
+    if (dotIndex > 0) {
+      const ext = sanitized.slice(dotIndex);
+      sanitized = sanitized.slice(0, 255 - ext.length) + ext;
+    } else {
+      sanitized = sanitized.slice(0, 255);
+    }
+  }
+  return sanitized || "unnamed_file";
+}
+
+function sanitizeMimeType(type: string): string {
+  if (
+    /^[a-zA-Z0-9][a-zA-Z0-9!#$&\-^_.+]*\/[a-zA-Z0-9][a-zA-Z0-9!#$&\-^_.+]*$/.test(
+      type
+    )
+  ) {
+    return type;
+  }
+  return "application/octet-stream";
+}
 
 export async function GET(request: NextRequest) {
   const user = await getCurrentUser();
@@ -78,6 +110,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (!checkUploadRateLimit(user.userId)) {
+    return NextResponse.json(
+      { error: "Too many uploads. Please wait a moment." },
+      { status: 429 }
+    );
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File;
@@ -87,15 +126,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: "File exceeds maximum size of 2GB" },
+        { status: 413 }
+      );
+    }
+
+    if (file.size === 0) {
+      return NextResponse.json(
+        { error: "File is empty" },
+        { status: 400 }
+      );
+    }
+
+    const safeName = sanitizeFileName(file.name);
     const buffer = Buffer.from(await file.arrayBuffer());
-    const mimeType = file.type || "application/octet-stream";
+    const mimeType = sanitizeMimeType(file.type || "application/octet-stream");
     const isImage = mimeType.startsWith("image/");
     const isVideo = mimeType.startsWith("video/");
 
     // Upload to Telegram
     const { telegramFileId, telegramMessageId } = await uploadFile(
       buffer,
-      file.name,
+      safeName,
       mimeType
     );
 
@@ -114,11 +168,11 @@ export async function POST(request: NextRequest) {
           if (botToken) {
             const thumbForm = new FormData();
             thumbForm.append("chat_id", CHANNEL_ID);
-            thumbForm.append("caption", `thumbnail:${file.name}`);
+            thumbForm.append("caption", `thumbnail:${safeName}`);
             thumbForm.append(
               "photo",
-              new Blob([thumbnail], { type: "image/webp" }),
-              `thumb_${file.name}.webp`
+              new Blob([new Uint8Array(thumbnail)], { type: "image/webp" }),
+              `thumb_${safeName}.webp`
             );
 
             const thumbRes = await fetch(
@@ -141,7 +195,7 @@ export async function POST(request: NextRequest) {
     // Save to database
     const dbFile = await prisma.file.create({
       data: {
-        originalName: file.name,
+        originalName: safeName,
         mimeType,
         size: BigInt(file.size),
         telegramFileId,

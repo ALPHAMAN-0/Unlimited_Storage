@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Upload } from "lucide-react";
 
 interface DropZoneProps {
@@ -10,23 +10,38 @@ interface DropZoneProps {
 
 export function DropZone({ children, onDrop }: DropZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const dragCounter = useRef(0);
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only respond to file drags, not text/link drags
+    if (!e.dataTransfer.types.includes("Files")) return;
+    dragCounter.current++;
+    if (dragCounter.current === 1) {
+      setIsDragging(true);
+    }
+  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragging(true);
   }, []);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragging(false);
+    dragCounter.current--;
+    if (dragCounter.current === 0) {
+      setIsDragging(false);
+    }
   }, []);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
+      dragCounter.current = 0;
       setIsDragging(false);
 
       if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
@@ -39,6 +54,7 @@ export function DropZone({ children, onDrop }: DropZoneProps) {
   return (
     <div
       className="relative flex-1"
+      onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
