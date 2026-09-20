@@ -1,2 +1,36 @@
-config.bat
-node_modules
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Build artifacts (the actual Next.js app lives under unlimitade-storage/)
+unlimitade-storage/.next/
+unlimitade-storage/out/
+unlimitade-storage/build/
+unlimitade-storage/coverage/
+unlimitade-storage/*.tsbuildinfo
+unlimitade-storage/next-env.d.ts
+
+# Database files (kept under unlimitade-storage/prisma)
+*.db
+*.db-journal
+
+# Claude tooling
+.claude/

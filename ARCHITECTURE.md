@@ -42,15 +42,19 @@ flowchart TD
 ```
 
 ## 4. Component index
-- [[Pages]]
-- [[Components]]
-- [[API-Routes]]
-- [[Middleware]]
-- [[Hooks-State]]
-- [[Auth]]
-- [[Telegram]]
-- [[Thumbnails]]
-- [[Database]]
+Notes live in `docs/components/` (one per diagram node).
+
+- [[docs/components/Pages]]
+- [[docs/components/Components]]
+- [[docs/components/API-Routes]]
+- [[docs/components/Middleware]]
+- [[docs/components/Hooks-State]]
+- [[docs/components/Auth]]
+- [[docs/components/Telegram]]
+- [[docs/components/Thumbnails]]
+- [[docs/components/Database]]
+
+A more detailed per-file vault (one note per source file) lives in `Obsidian Vault/`.
 
 ## 5. Entry points
 - Dev: `npm run dev` (runs `next dev`) from `unlimitade-storage/` — unlimitade-storage/package.json:6
