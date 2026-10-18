@@ -221,6 +221,18 @@ Edit `.env`:
 # Database
 DATABASE_URL="file:./dev.db"
 
+## Architecture / How it Works
+
+```mermaid
+flowchart LR
+    A[User] --> B[Unlimited Storage]
+    B --> C{Logic}
+    C --> D[(Data)]
+    C --> E[Output]
+    D --> C
+```
+
+
 # Telegram Bot (from @BotFather)
 BOT_TOKEN="your-bot-token"
 BOT_USERNAME="your_bot_username"
