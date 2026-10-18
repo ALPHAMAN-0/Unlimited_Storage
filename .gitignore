@@ -5,7 +5,6 @@ desktop.ini
 
 # Editor / IDE
 .idea/
-.vscode/
 *.swp
 *.swo
 
@@ -16,8 +15,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # Env
-.env
-.env.local
 .env.*.local
 
 # Build artifacts (the actual Next.js app lives under unlimitade-storage/)
@@ -34,3 +31,5 @@ unlimitade-storage/next-env.d.ts
 
 # Claude tooling
 .claude/
+config.bat
+node_modules
