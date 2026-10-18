@@ -224,12 +224,18 @@ DATABASE_URL="file:./dev.db"
 ## Architecture / How it Works
 
 ```mermaid
-flowchart LR
-    A[User] --> B[Unlimited Storage]
-    B --> C{Logic}
-    C --> D[(Data)]
-    C --> E[Output]
-    D --> C
+flowchart TD
+    Middleware["Middleware"] --> Pages["Pages"]
+    Middleware --> APIRoutes["API-Routes"]
+    Pages --> Components["Components"]
+    Pages --> HooksState["Hooks-State"]
+    Components --> HooksState
+    HooksState --> APIRoutes
+    APIRoutes --> Auth["Auth"]
+    APIRoutes --> Telegram["Telegram"]
+    APIRoutes --> Thumbnails["Thumbnails"]
+    APIRoutes --> Database["Database"]
+    Auth --> Database
 ```
 
 
