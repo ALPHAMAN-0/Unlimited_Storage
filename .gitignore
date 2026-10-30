@@ -31,5 +31,4 @@ unlimitade-storage/next-env.d.ts
 
 # Claude tooling
 .claude/
-config.bat
 node_modules
